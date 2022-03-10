@@ -26,14 +26,14 @@ abstract class _WeatherStore with Store {
 
   @computed
   StoreState get state {
-    // if the user has not yet searched for a weather forecast or there has been an error
+    // If the user has not yet searched for a weather forecast or there has been an error
     if (_weatherFuture == null ||
         _weatherFuture!.status == FutureStatus.rejected) {
-      StoreState.initial;
+      return StoreState.initial;
     }
 
-    // Pending Future means "loading"
-    // Fulfilled Future means "loaded"
+    // // Pending Future means "loading"
+    // // Fulfilled Future means "loaded"
     return _weatherFuture!.status == FutureStatus.pending
         ? StoreState.loading
         : StoreState.loaded;

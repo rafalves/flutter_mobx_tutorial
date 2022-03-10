@@ -21,7 +21,7 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _weatherStore = Provider.of<WeatherStore>(context);
+    _weatherStore = Provider.of<WeatherStore>(context, listen: false);
     _disposers ??= [
       reaction(
         // Tell the reaction which observable to observe
@@ -51,7 +51,6 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    _weatherStore = Provider.of<WeatherStore>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Weather Search"),
@@ -66,8 +65,7 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
               case StoreState.loading:
                 return buildLoading();
               case StoreState.loaded:
-                //return buildColumnWithData(_weatherStore.weather);
-                return buildLoading();
+                return buildColumnWithData(_weatherStore.weather!);
             }
           })),
     );
@@ -107,15 +105,36 @@ class _WeatherSearchPageState extends State<WeatherSearchPage> {
   }
 }
 
-class CityInputField extends StatelessWidget {
+class CityInputField extends StatefulWidget {
   const CityInputField({Key? key}) : super(key: key);
+
+  @override
+  State<CityInputField> createState() => _CityInputFieldState();
+}
+
+class _CityInputFieldState extends State<CityInputField> {
+  TextEditingController textEditingController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    textEditingController.text = '';
+  }
+
+  @override
+  void dispose() {
+    textEditingController;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 50),
       child: TextField(
-        onSubmitted: (value) => submitCityName(context, value),
+        controller: textEditingController,
+        onSubmitted: (value) =>
+            submitCityName(context, textEditingController.text),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
@@ -127,7 +146,7 @@ class CityInputField extends StatelessWidget {
   }
 
   void submitCityName(BuildContext context, String cityName) {
-    final weatherStore = Provider.of<WeatherStore>(context);
+    final weatherStore = Provider.of<WeatherStore>(context, listen: false);
     weatherStore.getWeather(cityName);
   }
 }
